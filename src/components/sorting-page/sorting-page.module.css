@@ -1,0 +1,28 @@
+.form {
+  display: flex;
+  max-width: 924px;
+  margin: auto;
+  gap: 12px;
+  margin-bottom: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+        
+.result {
+  display: flex;
+  margin: auto;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 90px;
+}
+
+.buttons_sort {
+  display: flex;
+  gap: 12px;
+  max-width: 420px;
+}
+
+.inputs {
+  display: flex;
+  gap: 40px;
+}

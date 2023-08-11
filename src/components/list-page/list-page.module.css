@@ -1,0 +1,19 @@
+.form {
+  display: flex;
+  max-width: 952px;
+  margin: auto;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+      
+.result {
+  display: flex;
+  margin: auto;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 90px;
+}
+
+.button {
+  width: 100%;
+}
