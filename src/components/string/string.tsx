@@ -1,19 +1,10 @@
-import React, { useRef } from "react";
-import { useState, ChangeEvent } from "react";
+import React, { useRef, useState, ChangeEvent } from "react";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { Input } from "../ui/input/input";
 import { Button } from "../ui/button/button";
 import styles from './string.module.css';
 import { Circle } from "../ui/circle/circle";
 import { ElementStates } from "../../types/element-states";
-
-const sleep = async (timeout: number) => {
-  return new Promise((res) => {
-    setTimeout(() => {
-      res(null);
-    }, timeout);
-  })
-}
 
 export interface Updated { chars: string[], left: number, right: number }
 
