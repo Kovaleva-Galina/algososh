@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, useRef, useMemo } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { Input } from "../ui/input/input";
 import styles from './list-page.module.css';
@@ -7,7 +7,9 @@ import { Circle } from "../ui/circle/circle";
 import { ArrowIcon } from "../ui/icons/arrow-icon";
 import { ElementStates } from "../../types/element-states";
 import { LinkedList } from './linked-list';
+import { useForm } from "../../hooks/useForm";
 
+const getInitialValues = () => ({ value: '', index: '' });
 const TIMEOUT = 1000;
 
 interface Queue {
@@ -29,22 +31,12 @@ export const ListPage: React.FC = () => {
   const queueRef = useRef<Queue[]>([]);
   const [loading, setLoading] = useState<Buttons | null>(null)
   const [renderListNumber, setRenderListNumber] = useState(0);
+  const { values, handleChange, setValues } = useForm<{ value: string, index: string }>(getInitialValues());
   const [changingElements, setChangingElements] = useState<Queue[]>([]);
   const linkedListRef = useRef<LinkedList<string>>(new LinkedList<string>(['1', '3', '5', '8']));
   const [currentQueueElement, setCurrentQueueElement] = useState<Queue | null>(null);
-  const [inputValue, setInputValue] = useState<string>('');
-  const [inputIndex, setInputIndex] = useState<string>('');
 
   const list = useMemo(() => linkedListRef.current.list(), [renderListNumber]);
-
-  const handleChangeIndex = (event: ChangeEvent<HTMLInputElement>) => {
-    setInputIndex(event.target.value)
-  }
-
-  const handleAddValue = (event: ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value)
-  }
-
   const runShiftInterval = () => {
     const shiftItem = () => {
       const item = queueRef.current.shift();
@@ -54,8 +46,7 @@ export const ListPage: React.FC = () => {
       } else {
         setCurrentQueueElement(null);
         setChangingElements([]);
-        setInputIndex('');
-        setInputValue('');
+        setValues(getInitialValues())
         setRenderListNumber((renderListNumber) => renderListNumber + 1);
         clearInterval(intervalId);
         setLoading(null);
@@ -65,9 +56,9 @@ export const ListPage: React.FC = () => {
   }
 
   const handleAddByIndex = () => {
-    if (inputIndex) {
-      const maxIndex = +inputIndex;
-      linkedListRef.current.addAtIndex(maxIndex, inputValue, (index: number) => {
+    if (values.index) {
+      const maxIndex = +values.index;
+      linkedListRef.current.addAtIndex(maxIndex, values.index, (index: number) => {
         queueRef.current.push({ currentAddIndex: index, modifiedIndex: index === maxIndex ? index : null });
       });
       setLoading(Buttons.addByIndex);
@@ -76,8 +67,8 @@ export const ListPage: React.FC = () => {
   }
 
   const handleDeleteByIndex = () => {
-    if (inputIndex) {
-      const maxIndex = +inputIndex;
+    if (values.index) {
+      const maxIndex = +values.index;
       linkedListRef.current.delete(maxIndex, (index: number) => {
         queueRef.current.push({ currentDeleteIndex: index, modifiedIndex: index === maxIndex ? index : null });
       });
@@ -87,7 +78,7 @@ export const ListPage: React.FC = () => {
   }
 
   const handleAddToHead = () => {
-    linkedListRef.current.prepend(inputValue);
+    linkedListRef.current.prepend(values.index);
     queueRef.current.push({ currentAddIndex: 0, modifiedIndex: 0 });
     setLoading(Buttons.addToHead);
     runShiftInterval();
@@ -101,7 +92,7 @@ export const ListPage: React.FC = () => {
   }
 
   const handleAddToTail = () => {
-    linkedListRef.current.append(inputValue);
+    linkedListRef.current.append(values.index);
     queueRef.current.push({ currentAddIndex: list.length - 1, modifiedIndex: list.length - 1 });
     setLoading(Buttons.addToTail);
     runShiftInterval();
@@ -127,90 +118,92 @@ export const ListPage: React.FC = () => {
   return (
     <SolutionLayout title="Связный список">
       <form className={`${styles.form}`}>
-        <Input
-          placeholder="Введите значение"
-          extraClass='default'
-          maxLength={4}
-          isLimitText
-          type="text"
-          id="message"
-          name="message"
-          value={inputValue}
-          onChange={handleAddValue}
-        >
-        </Input>
-        <Button
-          text='Добавить в head'
-          extraClass='default'
-          type="button"
-          linkedList="small"
-          onClick={handleAddToHead}
-          disabled={!inputValue || !!loading}
-          isLoader={loading === Buttons.addToHead}
-        />
-        <Button
-          text='Добавить в tail'
-          extraClass='default'
-          type="button"
-          linkedList="small"
-          onClick={handleAddToTail}
-          disabled={!inputValue || !!loading}
-          isLoader={loading === Buttons.addToTail}
-        />
-        <Button
-          text='Удалить из head'
-          extraClass='default'
-          type="button"
-          linkedList="small"
-          onClick={handleDeleteFromHead}
-          disabled={!!loading}
-          isLoader={loading === Buttons.deleteFromHead}
-        />
-        <Button
-          text='Удалить из tail'
-          extraClass='default'
-          type="button"
-          linkedList="small"
-          onClick={handleDeleteFromTail}
-          disabled={!!loading}
-          isLoader={loading === Buttons.deleteFromTail}
-        />
-      </form>
-      <form className={`${styles.form}`}>
-        <Input
-          placeholder="Введите индекс"
-          extraClass='default'
-          type="text"
-          id="message-input"
-          name="message-input"
-          onChange={handleChangeIndex}
-          value={inputIndex}>
-        </Input>
-        <Button
-          text='Добавить по индексу'
-          extraClass='default'
-          type="button"
-          linkedList="big"
-          onClick={handleAddByIndex}
-          disabled={!inputIndex || !!loading}
-          isLoader={loading === Buttons.addByIndex}
-        />
-        <Button
-          text='Удалить по индексу'
-          extraClass='default'
-          type="button"
-          linkedList="big"
-          onClick={handleDeleteByIndex}
-          disabled={!inputIndex || !!loading}
-          isLoader={loading === Buttons.deleteByIndex}
-        />
+        <div className={`${styles.form_without_index}`}>
+          <Input
+            placeholder="Введите значение"
+            extraClass='default'
+            maxLength={4}
+            isLimitText
+            type="text"
+            id="message"
+            name="value"
+            value={values.value}
+            onChange={handleChange}
+          />
+          <Button
+            text='Добавить в head'
+            extraClass='default'
+            type="button"
+            linkedList="small"
+            onClick={handleAddToHead}
+            disabled={!values.value || !!loading}
+            isLoader={loading === Buttons.addToHead}
+          />
+          <Button
+            text='Добавить в tail'
+            extraClass='default'
+            type="button"
+            linkedList="small"
+            onClick={handleAddToTail}
+            disabled={!values.value || !!loading}
+            isLoader={loading === Buttons.addToTail}
+          />
+          <Button
+            text='Удалить из head'
+            extraClass='default'
+            type="button"
+            linkedList="small"
+            onClick={handleDeleteFromHead}
+            disabled={!!loading}
+            isLoader={loading === Buttons.deleteFromHead}
+          />
+          <Button
+            text='Удалить из tail'
+            extraClass='default'
+            type="button"
+            linkedList="small"
+            onClick={handleDeleteFromTail}
+            disabled={!!loading}
+            isLoader={loading === Buttons.deleteFromTail}
+          />
+        </div>
+        <div className={`${styles.form_with_index}`}>
+          <Input
+            placeholder="Введите индекс"
+            extraClass='default'
+            type="number"
+            max={list.length - 1}
+            id="message-input"
+            name="index"
+            onChange={handleChange}
+            value={values.index}
+          />
+          <Button
+            text='Добавить по индексу'
+            extraClass='default'
+            type="button"
+            linkedList="big"
+            onClick={handleAddByIndex}
+            disabled={!values.index || !!loading || +values.index > list.length - 1}
+            isLoader={loading === Buttons.addByIndex}
+          />
+          <Button
+            text='Удалить по индексу'
+            extraClass='default'
+            type="button"
+            linkedList="big"
+            onClick={handleDeleteByIndex}
+            disabled={!values.index || !!loading || +values.index > list.length - 1}
+            isLoader={loading === Buttons.deleteByIndex}
+          />
+        </div>
       </form>
       <div className={`${styles.list}`}>
         {list.map((value, index) => (
           <div key={index} className={`${styles.result}`}>
             <div className={`${styles.circles_added}`}>
               {currentQueueElement && currentQueueElement.currentAddIndex === index && (
-                <Circle isSmall state={ElementStates.Changing} letter={inputValue} />
+                <Circle isSmall state={ElementStates.Changing} letter={values.value} />
               )}
             </div>
             <div className={`${styles.circles_main}`}>
@@ -223,7 +216,7 @@ export const ListPage: React.FC = () => {
               <ArrowIcon fill={index === list.length - 1 ? 'none' : undefined} />
             </div>
             <div className={`${styles.circles_removed}`}>
-              {currentQueueElement && currentQueueElement.currentDeleteIndex === index && (!+inputIndex || +inputIndex === index) && (
+              {currentQueueElement && currentQueueElement.currentDeleteIndex === index && (!+values.index || +values.index === index) && (
                 <Circle isSmall state={ElementStates.Changing} letter={value} />
               )}
             </div>

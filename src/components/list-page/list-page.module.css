@@ -4,6 +4,7 @@
   margin: auto;
   gap: 12px;
   margin-bottom: 12px;
+  flex-direction: column
 }
 
 .list {
@@ -52,4 +53,14 @@
   min-height: 60px;
   margin-top: 20px;
   margin-left: -40px;
+}
+
+.form_without_index {
+  display: flex;
+  gap: 12px;
+}
+
+.form_with_index {
+  display: flex;
+  gap: 12px;
 }

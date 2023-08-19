@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, useRef, useMemo } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { Input } from "../ui/input/input";
 import styles from './queue-page.module.css';
@@ -6,50 +6,58 @@ import { Button } from "../ui/button/button";
 import { Circle } from "../ui/circle/circle";
 import { ElementStates } from "../../types/element-states";
 import { Queue } from './queue';
+import { useForm } from "../../hooks/useForm";
+
+const getInitialValues = () => ({ message: ''});
+enum Buttons {
+  addElement = 'addElement',
+  deleteElement = 'deleteElement',
+}
 
 const size = 7;
 const TIMEOUT = 500;
 export interface Updated { chars: string[], head: number, tail: number }
 
 export const QueuePage: React.FC = () => {
+  const [loading, setLoading] = useState<Buttons | null>(null);
+  const { values, handleChange, setValues } = useForm<{ message: string }>(getInitialValues());
   const queueRef = useRef<Queue<string>>(new Queue(size));
   const [renderListNumber, setRenderListNumber] = useState(0);
   const [elementState, setElementState] = useState<number | null>(null);
-  const [current, setCurrent] = useState('');
 
   const list = useMemo(() => queueRef.current.list, [renderListNumber]);
 
   const enqueue = () => {
     setElementState(queueRef.current.tail + 1);
+    setLoading(Buttons.addElement);
     setTimeout(() => {
-      queueRef.current.enqueue(current);
+      queueRef.current.enqueue(values.message);
       setRenderListNumber((renderListNumber) => renderListNumber + 1);
       setTimeout(() => {
         setElementState(null);
-        setCurrent('')
+        setLoading(null);
+        setValues(getInitialValues());
       }, TIMEOUT)
     }, TIMEOUT);
   }
 
   const dequeue = () => {
     setElementState(queueRef.current.head);
+    setLoading(Buttons.deleteElement)
     setTimeout(() => {
       queueRef.current.dequeue();
       setRenderListNumber((renderListNumber) => renderListNumber + 1);
       setTimeout(() => {
         setElementState(null);
+        setLoading(null);
       }, TIMEOUT)
     }, TIMEOUT);
   }
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setCurrent(event.target.value);
-  };
-
   const clear = () => {
     queueRef.current.clear();
     setRenderListNumber((renderListNumber) => renderListNumber + 1);
-    setCurrent('')
+    setValues(getInitialValues())
   }
 
   const getHead = (index: number): string | null => {
@@ -66,7 +74,6 @@ export const QueuePage: React.FC = () => {
     return null;
   }
 
-
   return (
     <SolutionLayout title="Очередь">
       <form className={`${styles.form}`}>
@@ -80,10 +87,26 @@ export const QueuePage: React.FC = () => {
             id="message"
             name="message"
             onChange={handleChange}
-            value={current}>
-          </Input>
-          <Button text='Добавить' extraClass='default' type="button" linkedList="big" onClick={enqueue} disabled={!current || queueRef.current.tail === size - 1}></Button>
-          <Button text='Удалить' extraClass='default' type="button" linkedList="big" onClick={dequeue} disabled={queueRef.current.isEmpty}></Button>
+            value={values.message}
+          />
+          <Button
+            text='Добавить'
+            extraClass='default'
+            type="button"
+            linkedList="big"
+            onClick={enqueue}
+            disabled={!values.message || queueRef.current.tail === size - 1}
+            isLoader={loading === Buttons.addElement}
+          />
+          <Button
+            text='Удалить'
+            extraClass='default'
+            type="button"
+            linkedList="big"
+            onClick={dequeue}
+            disabled={queueRef.current.isEmpty}
+            isLoader={loading === Buttons.deleteElement}
+          />
         </div>
         <Button text='Очистить' extraClass='default' type="button" linkedList="big" onClick={clear} disabled={queueRef.current.isStartedState}></Button>
       </form>

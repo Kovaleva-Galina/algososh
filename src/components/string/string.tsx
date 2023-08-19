@@ -1,4 +1,4 @@
-import React, { useRef, useState, ChangeEvent } from "react";
+import React, { useRef, useState } from "react";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { Input } from "../ui/input/input";
 import { Button } from "../ui/button/button";
@@ -6,13 +6,14 @@ import styles from './string.module.css';
 import { Circle } from "../ui/circle/circle";
 import { ElementStates } from "../../types/element-states";
 import { reverseString } from "./reverseString";
+import { useForm } from "../../hooks/useForm";
 
+const getInitialValues = () => ({ message: '' });
 export interface Updated { chars: string[], left: number, right: number }
 const TIMEOUT = 1000;
 
 export const StringComponent: React.FC = () => {
-  const [current, setCurrent] = useState('');
-  const [disabled, setDisabled] = useState(true);
+  const { values, handleChange, setValues } = useForm<{ message: string }>(getInitialValues());
   const [isLoader, setIsLoader] = useState(false);
   const queueRef = useRef<Updated[]>([]); // [{ chars: ['123'], left: 0, right: 0 }, { chars: ['321'], left: 1, right: 1 }]
 
@@ -22,17 +23,11 @@ export const StringComponent: React.FC = () => {
     right: 0,
   });
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setCurrent(event.target.value);
-    setDisabled(false);
-  };
-
   const handleClick = () => {
-
     const onChange = (state: Updated) => {
       queueRef.current.push(state);
     };
-    reverseString(current, onChange);
+    reverseString(values.message, onChange);
     const shiftItem = () => {
       const item = queueRef.current.shift();
       if (item) {
@@ -40,8 +35,7 @@ export const StringComponent: React.FC = () => {
         setIsLoader(true)
       } else {
         clearInterval(intervalId);
-        setCurrent('');
-        setDisabled(true);
+        setValues(getInitialValues());
         setIsLoader(false)
       }
     };
@@ -69,9 +63,9 @@ export const StringComponent: React.FC = () => {
           id="message"
           name="message"
           onChange={handleChange}
-          value={current}>
-        </Input>
-        <Button text='Развернуть' type="button" linkedList="small" onClick={handleClick} disabled={disabled} isLoader={isLoader}></Button>
+          value={values.message}
+        />
+        <Button text='Развернуть' type="button" linkedList="small" onClick={handleClick} disabled={!values.message} isLoader={isLoader}></Button>
       </form>
       <div className={`${styles.result}`}>
         {!!updated &&
