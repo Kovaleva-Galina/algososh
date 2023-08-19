@@ -16,8 +16,18 @@ interface Queue {
   currentDeleteIndex?: number | null;
 }
 
+enum Buttons {
+  addToHead = 'addToHead',
+  addToTail = 'addToTail',
+  deleteFromHead = 'deleteFromHead',
+  deleteFromTail = 'deleteFromTail',
+  addByIndex = 'addByIndex',
+  deleteByIndex = 'deleteByIndex'
+}
+
 export const ListPage: React.FC = () => {
   const queueRef = useRef<Queue[]>([]);
+  const [loading, setLoading] = useState<Buttons | null>(null)
   const [renderListNumber, setRenderListNumber] = useState(0);
   const [changingElements, setChangingElements] = useState<Queue[]>([]);
   const linkedListRef = useRef<LinkedList<string>>(new LinkedList<string>(['1', '3', '5', '8']));
@@ -47,8 +57,9 @@ export const ListPage: React.FC = () => {
         setInputIndex('');
         setInputValue('');
         setRenderListNumber((renderListNumber) => renderListNumber + 1);
-        clearInterval(intervalId)
-      } 
+        clearInterval(intervalId);
+        setLoading(null);
+      }
     };
     const intervalId = setInterval(shiftItem, TIMEOUT);
   }
@@ -59,6 +70,7 @@ export const ListPage: React.FC = () => {
       linkedListRef.current.addAtIndex(maxIndex, inputValue, (index: number) => {
         queueRef.current.push({ currentAddIndex: index, modifiedIndex: index === maxIndex ? index : null });
       });
+      setLoading(Buttons.addByIndex);
       runShiftInterval();
     }
   }
@@ -69,32 +81,36 @@ export const ListPage: React.FC = () => {
       linkedListRef.current.delete(maxIndex, (index: number) => {
         queueRef.current.push({ currentDeleteIndex: index, modifiedIndex: index === maxIndex ? index : null });
       });
+      setLoading(Buttons.deleteByIndex);
       runShiftInterval();
     }
   }
 
-
   const handleAddToHead = () => {
     linkedListRef.current.prepend(inputValue);
     queueRef.current.push({ currentAddIndex: 0, modifiedIndex: 0 });
+    setLoading(Buttons.addToHead);
     runShiftInterval();
   }
 
   const handleDeleteFromHead = () => {
     linkedListRef.current.delete(0);
     queueRef.current.push({ currentDeleteIndex: 0, modifiedIndex: 0 });
+    setLoading(Buttons.deleteFromHead);
     runShiftInterval();
   }
 
   const handleAddToTail = () => {
     linkedListRef.current.append(inputValue);
     queueRef.current.push({ currentAddIndex: list.length - 1, modifiedIndex: list.length - 1 });
+    setLoading(Buttons.addToTail);
     runShiftInterval();
   }
 
   const handleDeleteFromTail = () => {
     linkedListRef.current.delete(list.length - 1);
     queueRef.current.push({ currentDeleteIndex: list.length - 1, modifiedIndex: list.length - 1 });
+    setLoading(Buttons.deleteFromTail);
     runShiftInterval();
   }
 
@@ -123,10 +139,42 @@ export const ListPage: React.FC = () => {
           onChange={handleAddValue}
         >
         </Input>
-        <Button text='Добавить в head' extraClass='default' type="button" linkedList="small" onClick={handleAddToHead}></Button> 
-        <Button text='Добавить в tail' extraClass='default' type="button" linkedList="small" onClick={handleAddToTail}></Button>
-        <Button text='Удалить из head' extraClass='default' type="button" linkedList="small" onClick={handleDeleteFromHead}></Button>
-        <Button text='Удалить из tail' extraClass='default' type="button" linkedList="small" onClick={handleDeleteFromTail}></Button>
+        <Button
+          text='Добавить в head'
+          extraClass='default'
+          type="button"
+          linkedList="small"
+          onClick={handleAddToHead}
+          disabled={!inputValue || !!loading}
+          isLoader={loading === Buttons.addToHead}
+        />
+        <Button
+          text='Добавить в tail'
+          extraClass='default'
+          type="button"
+          linkedList="small"
+          onClick={handleAddToTail}
+          disabled={!inputValue || !!loading}
+          isLoader={loading === Buttons.addToTail}
+        />
+        <Button
+          text='Удалить из head'
+          extraClass='default'
+          type="button"
+          linkedList="small"
+          onClick={handleDeleteFromHead}
+          disabled={!!loading}
+          isLoader={loading === Buttons.deleteFromHead}
+        />
+        <Button
+          text='Удалить из tail'
+          extraClass='default'
+          type="button"
+          linkedList="small"
+          onClick={handleDeleteFromTail}
+          disabled={!!loading}
+          isLoader={loading === Buttons.deleteFromTail}
+        />
       </form>
       <form className={`${styles.form}`}>
         <Input
@@ -138,8 +186,24 @@ export const ListPage: React.FC = () => {
           onChange={handleChangeIndex}
           value={inputIndex}>
         </Input>
-        <Button text='Добавить по индексу' extraClass='default' type="button" linkedList="big" onClick={handleAddByIndex} ></Button>
-        <Button text='Удалить по индексу' extraClass='default' type="button" linkedList="big" onClick={handleDeleteByIndex} ></Button>
+        <Button
+          text='Добавить по индексу'
+          extraClass='default'
+          type="button"
+          linkedList="big"
+          onClick={handleAddByIndex}
+          disabled={!inputIndex || !!loading}
+          isLoader={loading === Buttons.addByIndex}
+        />
+        <Button
+          text='Удалить по индексу'
+          extraClass='default'
+          type="button"
+          linkedList="big"
+          onClick={handleDeleteByIndex}
+          disabled={!inputIndex || !!loading}
+          isLoader={loading === Buttons.deleteByIndex}
+        />
       </form>
       <div className={`${styles.list}`}>
         {list.map((value, index) => (
@@ -156,10 +220,10 @@ export const ListPage: React.FC = () => {
                 letter={value}
                 index={index}
                 state={getState(index)} />
-              <ArrowIcon  fill={index === list.length - 1 ? 'none' : undefined}/>
+              <ArrowIcon fill={index === list.length - 1 ? 'none' : undefined} />
             </div>
             <div className={`${styles.circles_removed}`}>
-              {currentQueueElement && currentQueueElement.currentDeleteIndex === index && +inputIndex === index && (
+              {currentQueueElement && currentQueueElement.currentDeleteIndex === index && (!+inputIndex || +inputIndex === index) && (
                 <Circle isSmall state={ElementStates.Changing} letter={value} />
               )}
             </div>

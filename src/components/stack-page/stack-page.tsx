@@ -17,12 +17,12 @@ export const StackPage: React.FC = () => {
   const [disabled, setDisabled] = useState<boolean>(true);
 
   const list = useMemo(() => stackRef.current.list, [renderListNumber]);
-  
+
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setCurrent(event.target.value);
   };
 
-  useEffect (() => {
+  useEffect(() => {
     if (current.length) {
       setDisabled(false);
     } else {
@@ -43,7 +43,7 @@ export const StackPage: React.FC = () => {
   }
 
   const deleteElement = () => {
-    setElementState(stackRef.current.list.length-1);
+    setElementState(stackRef.current.list.length - 1);
     setTimeout(() => {
       stackRef.current.pop();
       setRenderListNumber((renderListNumber) => renderListNumber + 1);
@@ -58,38 +58,38 @@ export const StackPage: React.FC = () => {
     setRenderListNumber((renderListNumber) => renderListNumber + 1);
     setCurrent('')
   }
-  
+
   return (
     <SolutionLayout title="Стек">
       <form className={`${styles.form}`}>
         <div className={`${styles.form}`}>
-          <Input 
-            extraClass='default' 
-            maxLength={4} 
-            isLimitText 
+          <Input
+            extraClass='default'
+            maxLength={4}
+            isLimitText
             type="text"
             id="message"
             name="message"
             onChange={handleChange}
             value={current}>
           </Input>
-          <Button text='Добавить' extraClass='default' type = "button" linkedList = "small" onClick={addElement} disabled={disabled}></Button>
-          <Button text='Удалить' extraClass='default' type = "button" linkedList = "small" onClick={deleteElement}></Button>
+          <Button text='Добавить' extraClass='default' type="button" linkedList="small" onClick={addElement} disabled={disabled}></Button>
+          <Button text='Удалить' extraClass='default' type="button" linkedList="small" onClick={deleteElement} disabled={list.length > 0 ? false : true}></Button>
         </div>
-        <Button text='Очистить' extraClass='default' type = "button" linkedList = "small" onClick={clear}></Button>
+        <Button text='Очистить' extraClass='default' type="button" linkedList="small" onClick={clear} disabled={list.length > 0 ? false : true}></Button>
       </form>
       <div className={`${styles.result}`}>
-      {!!list &&
-        list.map((value, index) => (
-          <Circle 
-            letter={value} 
-            key={index} 
-            state={elementState !== null && index === elementState ? ElementStates.Changing : ElementStates.Default} 
-            head={index === 0 ? 'top' : null}
-            index={index}
-          />
-        ))
-      }
+        {!!list &&
+          list.map((value, index) => (
+            <Circle
+              letter={value}
+              key={index}
+              state={elementState !== null && index === elementState ? ElementStates.Changing : ElementStates.Default}
+              head={index === list.length - 1 ? 'top' : null}
+              index={index}
+            />
+          ))
+        }
       </div>
     </SolutionLayout>
   );
