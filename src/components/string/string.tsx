@@ -13,7 +13,7 @@ export interface Updated { chars: string[], left: number, right: number }
 const TIMEOUT = 1000;
 
 export const StringComponent: React.FC = () => {
-  const { values, handleChange, setValues } = useForm<{ message: string }>(getInitialValues());
+  const { values, handleChange, setValues, onSubmit } = useForm<{ message: string }>(getInitialValues());
   const [isLoader, setIsLoader] = useState(false);
   const queueRef = useRef<Updated[]>([]); // [{ chars: ['123'], left: 0, right: 0 }, { chars: ['321'], left: 1, right: 1 }]
 
@@ -54,7 +54,7 @@ export const StringComponent: React.FC = () => {
 
   return (
     <SolutionLayout title="Строка">
-      <form className={`${styles.form}`}>
+      <form className={`${styles.form}`} onSubmit={onSubmit}>
         <Input
           extraClass='default'
           maxLength={11}

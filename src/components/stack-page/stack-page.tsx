@@ -22,7 +22,7 @@ export const StackPage: React.FC = () => {
   const stackRef = useRef<Stack<string>>(new Stack());
   const [renderListNumber, setRenderListNumber] = useState(0);
   const [elementState, setElementState] = useState<number | null>(null);
-  const { values, handleChange, setValues } = useForm<{ message: string }>(getInitialValues());
+  const { values, handleChange, setValues, onSubmit } = useForm<{ message: string }>(getInitialValues());
   const [disabled, setDisabled] = useState<boolean>(true);
 
   const list = useMemo(() => stackRef.current.list, [renderListNumber]);
@@ -70,7 +70,7 @@ export const StackPage: React.FC = () => {
 
   return (
     <SolutionLayout title="Стек">
-      <form className={`${styles.form}`}>
+      <form className={`${styles.form}`} onSubmit={onSubmit}>
         <div className={`${styles.form}`}>
           <Input
             extraClass='default'

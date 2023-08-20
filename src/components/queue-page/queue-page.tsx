@@ -20,7 +20,7 @@ export interface Updated { chars: string[], head: number, tail: number }
 
 export const QueuePage: React.FC = () => {
   const [loading, setLoading] = useState<Buttons | null>(null);
-  const { values, handleChange, setValues } = useForm<{ message: string }>(getInitialValues());
+  const { values, handleChange, setValues, onSubmit } = useForm<{ message: string }>(getInitialValues());
   const queueRef = useRef<Queue<string>>(new Queue(size));
   const [renderListNumber, setRenderListNumber] = useState(0);
   const [elementState, setElementState] = useState<number | null>(null);
@@ -76,7 +76,7 @@ export const QueuePage: React.FC = () => {
 
   return (
     <SolutionLayout title="Очередь">
-      <form className={`${styles.form}`}>
+      <form className={`${styles.form}`} onSubmit={onSubmit}>
         <div className={`${styles.form}`}>
           <Input
             placeholder="Введите значение"

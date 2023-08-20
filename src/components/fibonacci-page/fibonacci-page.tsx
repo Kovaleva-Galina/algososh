@@ -15,7 +15,7 @@ const getInitialValues = () => ({ message: '' });
 
 export const FibonacciPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const {values, handleChange, setValues} = useForm<{ message: string }>(getInitialValues());
+  const {values, handleChange, setValues, onSubmit} = useForm<{ message: string }>(getInitialValues());
   const [updated, setUpdated] = useState<number[]>([]);
 
   const handleClick = () => {
@@ -39,7 +39,7 @@ export const FibonacciPage: React.FC = () => {
 
   return (
     <SolutionLayout title="Последовательность Фибоначчи">
-      <form className={`${styles.form}`}>
+      <form className={`${styles.form}`} onSubmit={onSubmit}>
         <Input
           extraClass='default'
           max={MAX}

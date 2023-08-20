@@ -31,7 +31,7 @@ export const ListPage: React.FC = () => {
   const queueRef = useRef<Queue[]>([]);
   const [loading, setLoading] = useState<Buttons | null>(null)
   const [renderListNumber, setRenderListNumber] = useState(0);
-  const { values, handleChange, setValues } = useForm<{ value: string, index: string }>(getInitialValues());
+  const { values, handleChange, setValues, onSubmit } = useForm<{ value: string, index: string }>(getInitialValues());
   const [changingElements, setChangingElements] = useState<Queue[]>([]);
   const linkedListRef = useRef<LinkedList<string>>(new LinkedList<string>(['1', '3', '5', '8']));
   const [currentQueueElement, setCurrentQueueElement] = useState<Queue | null>(null);
@@ -117,7 +117,7 @@ export const ListPage: React.FC = () => {
 
   return (
     <SolutionLayout title="Связный список">
-      <form className={`${styles.form}`}>
+      <form className={`${styles.form}`} onSubmit={onSubmit}>
         <div className={`${styles.form_without_index}`}>
           <Input
             placeholder="Введите значение"
@@ -125,7 +125,6 @@ export const ListPage: React.FC = () => {
             maxLength={4}
             isLimitText
             type="text"
-            id="message"
             name="value"
             value={values.value}
             onChange={handleChange}
@@ -184,7 +183,7 @@ export const ListPage: React.FC = () => {
             type="button"
             linkedList="big"
             onClick={handleAddByIndex}
-            disabled={!values.index || !!loading || +values.index > list.length - 1}
+            disabled={!values.index || !!loading || +values.index > list.length - 1 || +values.index < 0}
             isLoader={loading === Buttons.addByIndex}
           />
           <Button
@@ -193,7 +192,7 @@ export const ListPage: React.FC = () => {
             type="button"
             linkedList="big"
             onClick={handleDeleteByIndex}
-            disabled={!values.index || !!loading || +values.index > list.length - 1}
+            disabled={!values.index || !!loading || +values.index > list.length - 1 || +values.index < 0}
             isLoader={loading === Buttons.deleteByIndex}
           />
         </div>
