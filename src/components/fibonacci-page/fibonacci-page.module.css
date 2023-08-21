@@ -1,0 +1,16 @@
+.form {
+  display: flex;
+  max-width: 522px;
+  margin: auto;
+  gap: 12px;
+}
+
+.result {
+  display: flex;
+  flex-wrap: wrap;
+  margin: auto;
+  gap: 48px 12px;
+  justify-content: center;
+  margin-top: 44px;
+  max-width: 944px;
+}
