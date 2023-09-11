@@ -1,0 +1,51 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Корректная отрисовка заблокированной кнопки 1`] = `
+<button
+  className="text text_type_button text_color_primary button  false "
+  disabled={true}
+  type="button"
+>
+  <p
+    className="text "
+  />
+</button>
+`;
+
+exports[`Корректная отрисовка кнопки без текста 1`] = `
+<button
+  className="text text_type_button text_color_primary button  false "
+  type="button"
+>
+  <p
+    className="text "
+  />
+</button>
+`;
+
+exports[`Корректная отрисовка кнопки с индикацией загрузки 1`] = `
+<button
+  className="text text_type_button text_color_primary button  loader "
+  disabled="false"
+  type="button"
+>
+  <img
+    alt="Загрузка."
+    className="loader_icon"
+    src="loader.svg"
+  />
+</button>
+`;
+
+exports[`Корректная отрисовка кнопки с текстом 1`] = `
+<button
+  className="text text_type_button text_color_primary button  false "
+  type="button"
+>
+  <p
+    className="text "
+  >
+    Рассчитать
+  </p>
+</button>
+`;

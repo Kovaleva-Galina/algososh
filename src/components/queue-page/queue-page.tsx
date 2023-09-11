@@ -8,7 +8,7 @@ import { ElementStates } from "../../types/element-states";
 import { Queue } from './queue';
 import { useForm } from "../../hooks/useForm";
 
-const getInitialValues = () => ({ message: ''});
+const getInitialValues = () => ({ message: '' });
 enum Buttons {
   addElement = 'addElement',
   deleteElement = 'deleteElement',
@@ -97,6 +97,7 @@ export const QueuePage: React.FC = () => {
             onClick={enqueue}
             disabled={!values.message || queueRef.current.tail === size - 1}
             isLoader={loading === Buttons.addElement}
+            data-testid="button-add"
           />
           <Button
             text='Удалить'
@@ -106,22 +107,32 @@ export const QueuePage: React.FC = () => {
             onClick={dequeue}
             disabled={queueRef.current.isEmpty}
             isLoader={loading === Buttons.deleteElement}
+            data-testid="button-delete"
           />
         </div>
-        <Button text='Очистить' extraClass='default' type="button" linkedList="big" onClick={clear} disabled={queueRef.current.isStartedState}></Button>
+        <Button
+          text='Очистить'
+          extraClass='default'
+          type="button"
+          linkedList="big"
+          onClick={clear}
+          disabled={queueRef.current.isStartedState}
+          data-testid="button-clear"
+        />
       </form>
-      <div className={`${styles.result}`}>{
-        list.map((value, index) => (
-          <Circle
-            index={index}
-            letter={value || ''}
-            key={index}
-            head={value ? getHead(index) : null}
-            tail={value ? getTail(index) : null}
-            state={elementState !== null && index === elementState ? ElementStates.Changing : ElementStates.Default}
-          />
-        ))
-      }
+      <div className={`${styles.result}`} data-testid="queue-result" >
+        {
+          list.map((value, index) => (
+            <Circle
+              index={index}
+              letter={value || ''}
+              key={index}
+              head={value ? getHead(index) : null}
+              tail={value ? getTail(index) : null}
+              state={elementState !== null && index === elementState ? ElementStates.Changing : ElementStates.Default}
+            />
+          ))
+        }
       </div>
     </SolutionLayout>
   );

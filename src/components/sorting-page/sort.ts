@@ -39,4 +39,5 @@ export const bubbleSort = (chars: number[], isUp = true, onChange?: (updated: Up
   }
   modified.push(modifiedIndex);
   onChange?.({ chars: [...chars], changing: [], modified: [...modified] });
+  return chars;
 }

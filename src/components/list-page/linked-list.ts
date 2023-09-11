@@ -79,39 +79,39 @@ export class LinkedList<T> {
     }
   }
 
-  addAtIndex(index: number, value: T, cb: (index: number) => void): void {
+  addAtIndex(index: number, value: T, cb?: (index: number) => void): void {
     if (index < 0) {
-        return;
+      return;
     }
     const newNode = new ListNode(value);
 
     if (index === 0) {
-        newNode.next = this.head;
-        this.head = newNode;
-        if (this.tail === null) {
-            this.tail = newNode;
-        }
-        return;
+      newNode.next = this.head;
+      this.head = newNode;
+      if (this.tail === null) {
+        this.tail = newNode;
+      }
+      return;
     }
 
     let current = this.head;
     let currentIndex = 0;
-    cb(currentIndex);
+    cb?.(currentIndex);
     while (current !== null && currentIndex < index - 1) {
-        current = current.next;
-        currentIndex++;
-        cb(currentIndex);
+      current = current.next;
+      currentIndex++;
+      cb?.(currentIndex);
     }
 
     if (current !== null) {
-        newNode.next = current.next;
-        current.next = newNode;
-        if (newNode.next === null) {
-            this.tail = newNode;
-        }
-        cb(++currentIndex);
+      newNode.next = current.next;
+      current.next = newNode;
+      if (newNode.next === null) {
+        this.tail = newNode;
+      }
+      cb?.(++currentIndex);
     }
-}
+  }
 
   list(): T[] {
     const arr: T[] = [];
