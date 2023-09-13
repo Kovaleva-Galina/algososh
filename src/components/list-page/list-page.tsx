@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from "react";
+import React, { useState, useRef, useMemo, useEffect } from "react";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { Input } from "../ui/input/input";
 import styles from './list-page.module.css';
@@ -37,8 +37,12 @@ export const ListPage: React.FC = () => {
   const [currentQueueElement, setCurrentQueueElement] = useState<Queue | null>(null);
 
   const list = useMemo(() => linkedListRef.current.list(), [renderListNumber]);
+
   const runShiftInterval = () => {
     const shiftItem = () => {
+      if (queueRef.current.length === 1 && queueRef.current[0]?.currentAddIndex !== undefined) {
+        setRenderListNumber((renderListNumber) => renderListNumber + 1);
+      }
       const item = queueRef.current.shift();
       if (item) {
         setCurrentQueueElement(item);
@@ -58,9 +62,10 @@ export const ListPage: React.FC = () => {
   const handleAddByIndex = () => {
     if (values.index) {
       const maxIndex = +values.index;
-      linkedListRef.current.addAtIndex(maxIndex, values.index, (index: number) => {
-        queueRef.current.push({ currentAddIndex: index, modifiedIndex: index === maxIndex ? index : null });
+      linkedListRef.current.addAtIndex(maxIndex, values.value, (index: number) => {
+        queueRef.current.push({ currentAddIndex: index, modifiedIndex: null });
       });
+      queueRef.current.push({ currentAddIndex: null, modifiedIndex: maxIndex });
       setLoading(Buttons.addByIndex);
       runShiftInterval();
     }
@@ -70,37 +75,42 @@ export const ListPage: React.FC = () => {
     if (values.index) {
       const maxIndex = +values.index;
       linkedListRef.current.delete(maxIndex, (index: number) => {
-        queueRef.current.push({ currentDeleteIndex: index, modifiedIndex: index === maxIndex ? index : null });
+        queueRef.current.push({ currentDeleteIndex: index, modifiedIndex: null });
       });
+      queueRef.current.push({ currentDeleteIndex: null, modifiedIndex: maxIndex });
       setLoading(Buttons.deleteByIndex);
       runShiftInterval();
     }
   }
 
   const handleAddToHead = () => {
-    linkedListRef.current.prepend(values.index);
-    queueRef.current.push({ currentAddIndex: 0, modifiedIndex: 0 });
+    linkedListRef.current.prepend(values.value);
+    queueRef.current.push({ currentAddIndex: 0, modifiedIndex: null });
+    queueRef.current.push({ currentAddIndex: null, modifiedIndex: 0 });
     setLoading(Buttons.addToHead);
     runShiftInterval();
   }
 
   const handleDeleteFromHead = () => {
     linkedListRef.current.delete(0);
-    queueRef.current.push({ currentDeleteIndex: 0, modifiedIndex: 0 });
+    queueRef.current.push({ currentDeleteIndex: 0, modifiedIndex: null });
+    queueRef.current.push({ currentDeleteIndex: null, modifiedIndex: 0 });
     setLoading(Buttons.deleteFromHead);
     runShiftInterval();
   }
 
   const handleAddToTail = () => {
-    linkedListRef.current.append(values.index);
-    queueRef.current.push({ currentAddIndex: list.length - 1, modifiedIndex: list.length - 1 });
+    linkedListRef.current.append(values.value);
+    queueRef.current.push({ currentAddIndex: list.length - 1, modifiedIndex: null });
+    queueRef.current.push({ currentAddIndex: null, modifiedIndex: list.length });
     setLoading(Buttons.addToTail);
     runShiftInterval();
   }
 
   const handleDeleteFromTail = () => {
     linkedListRef.current.delete(list.length - 1);
-    queueRef.current.push({ currentDeleteIndex: list.length - 1, modifiedIndex: list.length - 1 });
+    queueRef.current.push({ currentDeleteIndex: list.length - 1, modifiedIndex: null });
+    queueRef.current.push({ currentDeleteIndex: null, modifiedIndex: list.length - 1 });
     setLoading(Buttons.deleteFromTail);
     runShiftInterval();
   }
@@ -109,7 +119,7 @@ export const ListPage: React.FC = () => {
     if (currentQueueElement && currentQueueElement.modifiedIndex !== null && index === currentQueueElement.modifiedIndex) {
       return ElementStates.Modified;
     }
-    if (changingElements.length && changingElements.find(({ currentAddIndex, currentDeleteIndex }) => currentAddIndex === index || currentDeleteIndex === index)) {
+    if (changingElements.length && !currentQueueElement?.modifiedIndex && index !== currentQueueElement?.currentAddIndex && index !== currentQueueElement?.currentDeleteIndex && currentQueueElement?.currentAddIndex !== list.length - 1 && currentQueueElement?.currentDeleteIndex !== list.length - 1 && changingElements.find(({ currentAddIndex, currentDeleteIndex }) => (typeof currentAddIndex === 'number' && index < currentAddIndex) || (typeof currentDeleteIndex === 'number' && index <= currentDeleteIndex))) {
       return ElementStates.Changing;
     }
     return ElementStates.Default;
@@ -128,6 +138,7 @@ export const ListPage: React.FC = () => {
             name="value"
             value={values.value}
             onChange={handleChange}
+            data-testid="input-value"
           />
           <Button
             text='Добавить в head'
@@ -137,6 +148,7 @@ export const ListPage: React.FC = () => {
             onClick={handleAddToHead}
             disabled={!values.value || !!loading}
             isLoader={loading === Buttons.addToHead}
+            data-testid="button-add-in-head"
           />
           <Button
             text='Добавить в tail'
@@ -146,6 +158,7 @@ export const ListPage: React.FC = () => {
             onClick={handleAddToTail}
             disabled={!values.value || !!loading}
             isLoader={loading === Buttons.addToTail}
+            data-testid="button-add-in-tail"
           />
           <Button
             text='Удалить из head'
@@ -155,6 +168,7 @@ export const ListPage: React.FC = () => {
             onClick={handleDeleteFromHead}
             disabled={!!loading}
             isLoader={loading === Buttons.deleteFromHead}
+            data-testid="button-delete-from-head"
           />
           <Button
             text='Удалить из tail'
@@ -164,6 +178,7 @@ export const ListPage: React.FC = () => {
             onClick={handleDeleteFromTail}
             disabled={!!loading}
             isLoader={loading === Buttons.deleteFromTail}
+            data-testid="button-delete-from-tail"
           />
         </div>
         <div className={`${styles.form_with_index}`}>
@@ -176,6 +191,7 @@ export const ListPage: React.FC = () => {
             name="index"
             onChange={handleChange}
             value={values.index}
+            data-testid="input-index"
           />
           <Button
             text='Добавить по индексу'
@@ -185,6 +201,7 @@ export const ListPage: React.FC = () => {
             onClick={handleAddByIndex}
             disabled={!values.index || !!loading || +values.index > list.length - 1 || +values.index < 0}
             isLoader={loading === Buttons.addByIndex}
+            data-testid="button-add-by-index"
           />
           <Button
             text='Удалить по индексу'
@@ -194,18 +211,19 @@ export const ListPage: React.FC = () => {
             onClick={handleDeleteByIndex}
             disabled={!values.index || !!loading || +values.index > list.length - 1 || +values.index < 0}
             isLoader={loading === Buttons.deleteByIndex}
+            data-testid="button-delete-by-index"
           />
         </div>
       </form>
       <div className={`${styles.list}`}>
         {list.map((value, index) => (
           <div key={index} className={`${styles.result}`}>
-            <div className={`${styles.circles_added}`}>
+            <div className={`${styles.circles_added}`} data-testid="circle-added">
               {currentQueueElement && currentQueueElement.currentAddIndex === index && (
                 <Circle isSmall state={ElementStates.Changing} letter={values.value} />
               )}
             </div>
-            <div className={`${styles.circles_main}`}>
+            <div className={`${styles.circles_main}`} data-testid="string-result">
               <Circle
                 head={index === 0 && (!currentQueueElement || currentQueueElement.currentAddIndex !== 0) ? 'head' : undefined}
                 tail={index === list.length - 1 && (!currentQueueElement || currentQueueElement.currentDeleteIndex !== list.length - 1) ? 'tail' : undefined}
@@ -214,8 +232,8 @@ export const ListPage: React.FC = () => {
                 state={getState(index)} />
               <ArrowIcon fill={index === list.length - 1 ? 'none' : undefined} />
             </div>
-            <div className={`${styles.circles_removed}`}>
-              {currentQueueElement && currentQueueElement.currentDeleteIndex === index && (!+values.index || +values.index === index) && (
+            <div className={`${styles.circles_removed}`} data-testid="circle-removed" >
+              {currentQueueElement && currentQueueElement.currentDeleteIndex === index && (
                 <Circle isSmall state={ElementStates.Changing} letter={value} />
               )}
             </div>
@@ -225,3 +243,5 @@ export const ListPage: React.FC = () => {
     </SolutionLayout>
   )
 }
+
+// (!+values.index || +values.index === index)

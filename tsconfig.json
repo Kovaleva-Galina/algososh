@@ -16,5 +16,5 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["src"]
+  "include": ["src", "cypress/e2e/string.e2e.test.cy.js", "cypress/e2e/string.e2e.test.js"]
 }

@@ -82,12 +82,41 @@ export const StackPage: React.FC = () => {
             onChange={handleChange}
             value={values.message}
           />
-          <Button text='Добавить' extraClass='default' type="button" linkedList="small" onClick={addElement} disabled={disabled} isLoader={loading === Buttons.addElement}></Button>
-          <Button text='Удалить' extraClass='default' type="button" linkedList="small" onClick={deleteElement} disabled={list.length > 0 ? false : true} isLoader={loading === Buttons.deleteElement}></Button>
+          <Button
+            text='Добавить'
+            extraClass='default'
+            type="button"
+            linkedList="small"
+            onClick={addElement}
+            disabled={disabled}
+            isLoader={loading === Buttons.addElement}
+            data-testid="button-add"
+          />
+          <Button
+            text='Удалить'
+            extraClass='default'
+            type="button"
+            linkedList="small"
+            onClick={deleteElement}
+            disabled={list.length > 0 ? false : true}
+            isLoader={loading === Buttons.deleteElement}
+            data-testid="button-delete"
+          />
         </div>
-        <Button text='Очистить' extraClass='default' type="button" linkedList="small" onClick={clear} disabled={list.length > 0 ? false : true}></Button>
+        <Button
+          text='Очистить'
+          extraClass='default'
+          type="button"
+          linkedList="small"
+          onClick={clear}
+          disabled={list.length > 0 ? false : true}
+          data-testid="button-clear"
+        />
       </form>
-      <div className={`${styles.result}`}>
+      <div
+        className={`${styles.result}`}
+        data-testid="string-result"
+      >
         {!!list &&
           list.map((value, index) => (
             <Circle

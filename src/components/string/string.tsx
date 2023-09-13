@@ -65,9 +65,17 @@ export const StringComponent: React.FC = () => {
           onChange={handleChange}
           value={values.message}
         />
-        <Button text='Развернуть' type="button" linkedList="small" onClick={handleClick} disabled={!values.message} isLoader={isLoader}></Button>
+        <Button 
+          text='Развернуть' 
+          type="button" 
+          linkedList="small" 
+          onClick={handleClick} 
+          disabled={!values.message} 
+          isLoader={isLoader}
+          data-testid="button"
+        />
       </form>
-      <div className={`${styles.result}`}>
+      <div className={`${styles.result}`} data-testid="string-result">
         {!!updated &&
           updated.chars.map((i, index) => (
             <Circle letter={i} key={index} state={getState(index)} ></Circle>
